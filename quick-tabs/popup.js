@@ -54,6 +54,7 @@ var search = null;
  * max number of search results to show when searching bookmarks and history.
  */
 var MAX_NON_TAB_RESULTS = 50;
+var ONE_WEEK_IN_MS = 604800000;
 
 /**
  * minimum tabs required before bookmarks get searched automatically.
@@ -715,12 +716,17 @@ AbstractSearch.prototype.searchHistory = function(searchStr, since) {
     return !filterRegEx || !filterRegEx.exec(url);
   };
 
+  log("[test] about to look at history");
+
   if (historyCache !== null) {
     // use the cached values
+    // console.log("History cache found! with length: ${historyCache.length()}");
+    log("[test] loaded history from cache!", historyCache.length);
     doSearch(historyCache);
   } else {
     // load browser history
-    chrome.history.search({text: "", maxResults: 1000000000, startTime: since}, function(result) {
+    var timeFromAWeekAgo = new Date(time.getTime() - ONE_WEEK_IN_MS);
+    chrome.history.search({ text: "", maxResults: 1000, startTime: timeFromAWeekAgo}, function(result) {
 
       var includeView = function(v) {
         return v.url && v.title && includeUrl(v.url)
